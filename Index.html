@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AWA Admin Portal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <style>
+    :root {
+      --brand-dark:   #1a1a2e;
+      --brand-mid:    #16213e;
+      --brand-accent: #e94560;
+      --brand-gold:   #f5a623;
+      --brand-green:  #27ae60;
+      --text-light:   #f0f0f0;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      background: #f4f6f9;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────────────────────── */
+    .site-header {
+      background: var(--brand-dark);
+      color: var(--text-light);
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,.4);
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+    }
+    .header-logo {
+      height: 44px;
+      width: auto;
+      object-fit: contain;
+      display: block;
+      filter: drop-shadow(0 1px 3px rgba(0,0,0,.4));
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 44px;
+    }
+    .header-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: .5px;
+      line-height: 1.1;
+      color: #fff;
+    }
+    .header-title span { color: var(--brand-gold); }
+    .header-subtitle {
+      font-size: .65rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.5);
+      font-weight: 500;
+    }
+
+    .date-badge {
+      background: var(--brand-accent);
+      color: #fff;
+      border-radius: 6px;
+      padding: 4px 14px;
+      font-weight: 600;
+      font-size: .9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: opacity .15s;
+    }
+    .date-badge:hover { opacity: .85; }
+    .date-badge.not-set { background: #6c757d; }
+
+    /* ── Nav tabs ────────────────────────────────────────────── */
+    .nav-tabs-custom {
+      background: var(--brand-mid);
+      display: flex;
+      border-bottom: 2px solid var(--brand-accent);
+    }
+    .nav-tab-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,.55);
+      padding: 10px 4px;
+      font-size: .85rem;
+      font-weight: 600;
+      letter-spacing: .4px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: color .15s, background .15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .nav-tab-btn.active {
+      color: #fff;
+      background: rgba(233,69,96,.18);
+      border-bottom: 2px solid var(--brand-accent);
+    }
+    .nav-tab-btn:hover:not(.active) { color: rgba(255,255,255,.8); }
+
+    /* ── Views ───────────────────────────────────────────────── */
+    .view { display: none; padding: 20px; max-width: 640px; margin: 0 auto; }
+    .view.active { display: block; }
+
+    /* ── Cards ───────────────────────────────────────────────── */
+    .card { border: none; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.08); margin-bottom: 16px; }
+    .card-header-custom {
+      background: var(--brand-dark);
+      color: #fff;
+      border-radius: 12px 12px 0 0;
+      padding: 12px 18px;
+      font-weight: 600;
+      font-size: .95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── Form controls ───────────────────────────────────────── */
+    .form-label { font-weight: 600; font-size: .85rem; color: #555; margin-bottom: 4px; }
+    .form-control, .form-select {
+      border-radius: 8px;
+      border: 1.5px solid #dde1e7;
+      font-size: .95rem;
+      padding: 10px 14px;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--brand-accent);
+      box-shadow: 0 0 0 3px rgba(233,69,96,.15);
+    }
+
+    /* ── Autocomplete ────────────────────────────────────────── */
+    .autocomplete-wrap { position: relative; }
+    .autocomplete-list {
+      position: absolute;
+      top: 100%;
+      left: 0; right: 0;
+      background: #fff;
+      border: 1.5px solid var(--brand-accent);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      z-index: 200;
+      max-height: 220px;
+      overflow-y: auto;
+      display: none;
+    }
+    .autocomplete-list.open { display: block; }
+    .autocomplete-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: .9rem;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .autocomplete-item:last-child { border-bottom: none; }
+    .autocomplete-item:hover, .autocomplete-item.highlighted { background: #fef0f3; }
+    .autocomplete-item .ac-name { font-weight: 600; }
+    .autocomplete-item .ac-email { color: #888; font-size: .8rem; }
+
+    /* ── Pricing display ─────────────────────────────────────── */
+    .price-box {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #fff;
+      border-radius: 10px;
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+    }
+    .price-box .price-label { font-size: .8rem; opacity: .75; text-transform: uppercase; letter-spacing: .5px; }
+    .price-box .price-value { font-size: 1.6rem; font-weight: 700; color: var(--brand-gold); }
+    .price-box.total .price-value { color: #6ef595; }
+
+    /* ── Pricing type toggle (Regular / Student) ─────────────── */
+    .toggle-group {
+      display: flex;
+      background: #e9ecef;
+      border-radius: 8px;
+      padding: 3px;
+      gap: 3px;
+    }
+    .toggle-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: .85rem;
+      font-weight: 600;
+      color: #6c757d;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .toggle-btn.active {
+      background: var(--brand-accent);
+      color: #fff;
+      box-shadow: 0 1px 4px rgba(233,69,96,.35);
+    }
+
+    /* ── Payment radio buttons ───────────────────────────────── */
+    .payment-radio-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .payment-radio-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 2px solid #dde1e7;
+      border-radius: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: .92rem;
+      color: #444;
+      transition: border-color .15s, background .15s, box-shadow .15s;
+      user-select: none;
+      background: #fff;
+    }
+    .payment-radio-label:hover { border-color: #adb5bd; background: #f8f9fa; }
+    .payment-radio-label input[type="radio"] { display: none; }
+    .payment-radio-label .radio-dot {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      border: 2px solid #ced4da;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: border-color .15s;
+    }
+    .payment-radio-label .radio-dot::after {
+      content: '';
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--brand-accent);
+      opacity: 0;
+      transition: opacity .15s;
+    }
+    .payment-radio-label.selected {
+      border-color: var(--brand-accent);
+      background: #fff5f7;
+      box-shadow: 0 2px 8px rgba(233,69,96,.15);
+      color: var(--brand-accent);
+    }
+    .payment-radio-label.selected .radio-dot {
+      border-color: var(--brand-accent);
+    }
+    .payment-radio-label.selected .radio-dot::after { opacity: 1; }
+    .payment-radio-label i { font-size: 1.1rem; }
+
+    /* ── Total breakdown box ─────────────────────────────────── */
+    .total-breakdown {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-top: 14px;
+      color: #fff;
+    }
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: .88rem;
+      padding: 3px 0;
+      opacity: .8;
+    }
+    .breakdown-row.total-row {
+      border-top: 1px solid rgba(255,255,255,.2);
+      margin-top: 8px;
+      padding-top: 10px;
+      opacity: 1;
+    }
+    .breakdown-row.total-row .breakdown-label { font-weight: 700; font-size: 1rem; }
+    .breakdown-row.total-row .breakdown-val { font-size: 1.6rem; font-weight: 700; color: #6ef595; }
+    .breakdown-label { font-weight: 500; }
+    .breakdown-val { font-weight: 600; color: var(--brand-gold); }
+
+    /* ── Success confirmation popup ──────────────────────────── */
+    .success-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999;
+      animation: fadeIn .2s ease;
+    }
+    .success-box {
+      background: #fff;
+      border-radius: 20px;
+      padding: 44px 40px;
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(0,0,0,.25);
+      max-width: 320px;
+      width: 90%;
+      animation: popIn .25s cubic-bezier(.175,.885,.32,1.275);
+    }
+    .success-icon {
+      font-size: 3.5rem;
+      color: var(--brand-green);
+      margin-bottom: 14px;
+      display: block;
+    }
+    .success-name {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #1a1a2e;
+      margin-bottom: 6px;
+    }
+    .success-sub {
+      font-size: .9rem;
+      color: #888;
+      margin-bottom: 18px;
+    }
+    .success-bar {
+      height: 4px;
+      background: #e9ecef;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .success-bar-fill {
+      height: 100%;
+      background: var(--brand-green);
+      border-radius: 4px;
+      animation: drainBar 3s linear forwards;
+    }
+    @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes popIn   { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: scale(1); } }
+    @keyframes drainBar { from { width: 100%; } to { width: 0%; } }
+
+    /* ── Submit button ───────────────────────────────────────── */
+    .btn-submit {
+      background: var(--brand-green);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      width: 100%;
+      letter-spacing: .5px;
+      transition: background .15s, transform .1s;
+    }
+    .btn-submit:hover:not(:disabled) { background: #219a52; transform: translateY(-1px); }
+    .btn-submit:disabled { opacity: .55; }
+
+    /* ── Date picker screen ──────────────────────────────────── */
+    .date-option {
+      background: #fff;
+      border: 2px solid #e0e4ea;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: border-color .15s, box-shadow .15s;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .date-option:hover { border-color: var(--brand-accent); box-shadow: 0 2px 8px rgba(233,69,96,.12); }
+    .date-option.selected { border-color: var(--brand-accent); background: #fff5f7; }
+
+    /* ── Monthly pass list ───────────────────────────────────── */
+    .pass-card {
+      background: #fff;
+      border-radius: 10px;
+      border: 2px solid #e0e4ea;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: border-color .15s;
+    }
+    .pass-card:hover { border-color: #adb5bd; }
+    .pass-avatar {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--brand-dark);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .pass-info { flex: 1; min-width: 0; }
+    .pass-name { font-weight: 700; font-size: .97rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pass-meta { font-size: .78rem; color: #888; }
+    .classes-pill {
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-weight: 700;
+      font-size: .85rem;
+      white-space: nowrap;
+    }
+    .classes-4, .classes-3 { background: #d4edda; color: #155724; }
+    .classes-2 { background: #fff3cd; color: #856404; }
+    .classes-1 { background: #ffe5d0; color: #bf5a00; }
+    .classes-0 { background: #f8d7da; color: #721c24; }
+
+    .btn-checkin {
+      background: var(--brand-dark);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 7px 14px;
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .15s;
+    }
+    .btn-checkin:hover:not(:disabled) { background: var(--brand-accent); }
+    .btn-checkin:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* ── Toast ───────────────────────────────────────────────── */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .toast-msg {
+      background: #1a1a2e;
+      color: #fff;
+      border-radius: 10px;
+      padding: 12px 22px;
+      font-weight: 600;
+      font-size: .92rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,.25);
+      animation: slideUp .25s ease;
+      pointer-events: all;
+    }
+    .toast-msg.success { border-left: 4px solid var(--brand-green); }
+    .toast-msg.error   { border-left: 4px solid var(--brand-accent); }
+    .toast-msg.info    { border-left: 4px solid var(--brand-gold); }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── Spinner ─────────────────────────────────────────────── */
+    .spinner-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.35);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9998;
+    }
+    .spinner-box {
+      background: #fff; border-radius: 12px; padding: 28px 36px;
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+      font-weight: 600; color: #333;
+    }
+
+    /* ── Misc ────────────────────────────────────────────────── */
+    .section-divider { height: 1px; background: #e9ecef; margin: 16px 0; }
+    .no-date-warning {
+      background: #fff3cd; border: 1.5px solid #ffc107;
+      border-radius: 10px; padding: 14px 18px; text-align: center;
+      font-weight: 600; color: #664d03; margin-bottom: 16px;
+    }
+    .empty-state {
+      text-align: center; padding: 40px 20px; color: #aaa;
+    }
+    .empty-state i { font-size: 3rem; margin-bottom: 12px; display: block; }
+
+    /* ── Hamburger ───────────────────────────────────────────── */
+    .hamburger-btn {
+      background: none; border: none;
+      color: rgba(255,255,255,.85); font-size: 1.5rem; line-height: 1;
+      cursor: pointer; padding: 4px 6px; margin-right: 4px;
+      display: flex; align-items: center;
+    }
+    .hamburger-btn:hover { color: #fff; }
+
+    /* ── Side-nav drawer ─────────────────────────────────────── */
+    .sidenav-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.52); z-index: 500;
+    }
+    .sidenav-overlay.open { display: block; animation: fadeIn .18s; }
+    .sidenav-drawer {
+      position: fixed; top: 0; left: 0; bottom: 0; width: 272px;
+      background: var(--brand-dark); color: #fff; z-index: 501;
+      transform: translateX(-100%); transition: transform .24s ease;
+      display: flex; flex-direction: column;
+      box-shadow: 4px 0 24px rgba(0,0,0,.45);
+    }
+    .sidenav-drawer.open { transform: translateX(0); }
+    .sidenav-head {
+      padding: 16px; border-bottom: 1px solid rgba(255,255,255,.1);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .sidenav-head img { height: 32px; }
+    .sidenav-head-title { flex: 1; font-size: .97rem; font-weight: 800; }
+    .sidenav-head-title span { color: var(--brand-gold); }
+    .sidenav-x {
+      background: none; border: none; color: rgba(255,255,255,.5);
+      font-size: 1.2rem; cursor: pointer; padding: 2px 6px; line-height: 1;
+    }
+    .sidenav-x:hover { color: #fff; }
+    .sidenav-body { flex: 1; overflow-y: auto; padding: 8px 0; }
+    .sidenav-section-label {
+      padding: 14px 20px 4px; font-size: .63rem; letter-spacing: 1.5px;
+      text-transform: uppercase; color: rgba(255,255,255,.3); font-weight: 600;
+    }
+    .sidenav-item {
+      display: flex; align-items: center; gap: 13px; padding: 13px 20px;
+      color: rgba(255,255,255,.62); font-weight: 600; font-size: .9rem;
+      cursor: pointer; border-left: 3px solid transparent;
+      transition: background .12s, color .12s; user-select: none;
+    }
+    .sidenav-item i { font-size: 1rem; width: 20px; flex-shrink: 0; }
+    .sidenav-item:hover { color: #fff; background: rgba(255,255,255,.07); }
+    .sidenav-item.active {
+      color: #fff; background: rgba(233,69,96,.18);
+      border-left-color: var(--brand-accent);
+    }
+    .sidenav-divider { height: 1px; background: rgba(255,255,255,.08); margin: 6px 0; }
+
+    /* ── Attendance page ─────────────────────────────────────── */
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat-card {
+      background: var(--brand-dark); border-radius: 10px;
+      padding: 16px 10px; text-align: center; color: #fff;
+    }
+    .stat-card.span-2 { grid-column: 1 / -1; }
+    .stat-card.hi { background: linear-gradient(135deg, var(--brand-accent), #c0392b); }
+    .stat-label {
+      font-size: .67rem; text-transform: uppercase;
+      letter-spacing: 1px; opacity: .65; margin-bottom: 6px;
+    }
+    .stat-value { font-size: 1.9rem; font-weight: 800; color: var(--brand-gold); line-height: 1; }
+    .stat-card.hi .stat-value { color: #fff; font-size: 2.3rem; }
+
+    .top10-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid #f0f0f0;
+    }
+    .top10-row:last-child { border-bottom: none; }
+    .top10-rank {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--brand-mid); color: #fff;
+      font-weight: 700; font-size: .8rem;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .r1 { background: #f5a623 !important; }
+    .r2 { background: #9e9e9e !important; }
+    .r3 { background: #cd7f32 !important; }
+    .top10-name { flex: 1; font-weight: 600; font-size: .9rem; }
+    .top10-count {
+      background: #e9ecef; color: #333; border-radius: 20px;
+      padding: 3px 11px; font-weight: 700; font-size: .82rem;
+    }
+    .att-loading { text-align: center; padding: 20px; color: #aaa; }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────────────────── -->
+<header class="site-header">
+  <div class="header-top">
+    <div class="header-left">
+      <button class="hamburger-btn" onclick="openNav()" aria-label="Open menu">
+        <i class="bi bi-list"></i>
+      </button>
+      <img id="awaLogo" class="header-logo"
+           src="YOUR_LOGO_URL_OR_BASE64_FROM_getLogoBase64"
+           alt="Austin Westie Academy"
+           onerror="this.style.display='none'" />
+      <div class="header-title">AWA <span>Admin</span></div>
+    </div>
+    <button class="date-badge not-set" id="dateBadge" onclick="openDatePicker()">
+      <i class="bi bi-calendar3"></i>
+      <span id="dateBadgeText">Select Date</span>
+    </button>
+  </div>
+</header>
+
+<!-- ── Side-nav overlay + drawer ────────────────────────────────────── -->
+<div class="sidenav-overlay" id="sidenavOverlay" onclick="closeNav()"></div>
+<div class="sidenav-drawer" id="sidenavDrawer">
+  <div class="sidenav-head">
+    <img src="YOUR_LOGO_URL_OR_BASE64_FROM_getLogoBase64"
+         onerror="this.style.display='none'" alt="AWA" />
+    <div class="sidenav-head-title">AWA <span>Admin</span></div>
+    <button class="sidenav-x" onclick="closeNav()" aria-label="Close menu">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+  <div class="sidenav-body">
+    <div class="sidenav-section-label">Main</div>
+    <div class="sidenav-item active" data-view="checkin" onclick="showView('checkin')">
+      <i class="bi bi-person-check-fill"></i> Check-In Portal
+    </div>
+    <div class="sidenav-item" data-view="monthly" onclick="showView('monthly')">
+      <i class="bi bi-card-list"></i> Monthly Passes
+    </div>
+    <div class="sidenav-divider"></div>
+    <div class="sidenav-section-label">Analytics</div>
+    <div class="sidenav-item" data-view="attendance" onclick="showView('attendance')">
+      <i class="bi bi-bar-chart-fill"></i> Attendance
+    </div>
+    <div class="sidenav-divider"></div>
+    <div class="sidenav-section-label">Settings</div>
+    <div class="sidenav-item" data-view="date" onclick="openDatePicker(); closeNav();">
+      <i class="bi bi-calendar-week"></i> Change Date
+    </div>
+  </div>
+</div>
+
+<!-- ── Spinner ─────────────────────────────────────────────────────── -->
+<div class="spinner-overlay" id="spinner" style="display:none">
+  <div class="spinner-box">
+    <div class="spinner-border text-danger" role="status"></div>
+    <span id="spinnerMsg">Saving…</span>
+  </div>
+</div>
+
+<!-- ── Toast container ─────────────────────────────────────────────── -->
+<div id="toast-container"></div>
+
+<!-- ── Success confirmation popup ──────────────────────────────────── -->
+<div id="successOverlay" class="success-overlay" style="display:none">
+  <div class="success-box">
+    <i class="bi bi-check-circle-fill success-icon"></i>
+    <div class="success-name" id="successName"></div>
+    <div class="success-sub">Successfully checked in!</div>
+    <div class="success-bar"><div class="success-bar-fill"></div></div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- VIEW: Date Selection                                              -->
+<!-- ================================================================ -->
+<div class="view" id="view-date">
+  <div class="card">
+    <div class="card-header-custom"><i class="bi bi-calendar-week"></i> Select Operating Date</div>
+    <div class="card-body p-3">
+      <p class="text-muted small mb-3">Choose the Thursday date for tonight's class. All check-ins will go to that tab in the master sheet.</p>
+      <div id="dateList">
+        <div class="empty-state"><div class="spinner-border text-secondary" role="status"></div><br>Loading dates…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- VIEW: Check-In Form                                               -->
+<!-- ================================================================ -->
+<div class="view active" id="view-checkin">
+
+  <div class="no-date-warning" id="noDatWarning" style="display:none">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    No date selected. <a href="#" onclick="showView('date')">Choose a date first →</a>
+  </div>
+
+  <!-- Student info -->
+  <div class="card">
+    <div class="card-header-custom"><i class="bi bi-person-fill"></i> Student Info</div>
+    <div class="card-body p-3">
+
+      <div class="row g-2 mb-3">
+        <div class="col-6">
+          <label class="form-label">First Name *</label>
+          <div class="autocomplete-wrap">
+            <input type="text" class="form-control" id="firstName"
+                   placeholder="First" autocomplete="off"
+                   oninput="onNameInput()" />
+            <div class="autocomplete-list" id="nameAcList"></div>
+          </div>
+        </div>
+        <div class="col-6">
+          <label class="form-label">Last Name *</label>
+          <input type="text" class="form-control" id="lastName"
+                 placeholder="Last" autocomplete="off"
+                 oninput="onNameInput()" />
+        </div>
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label">Email <span class="text-muted fw-normal">(optional — saved for next visit)</span></label>
+        <input type="email" class="form-control" id="studentEmail" placeholder="student@email.com" />
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Pricing type -->
+  <div class="card">
+    <div class="card-header-custom"><i class="bi bi-tag-fill"></i> Pricing Type</div>
+    <div class="card-body p-3">
+
+      <div class="toggle-group mb-3" id="pricingToggle">
+        <button class="toggle-btn active" onclick="setPricingType('regular')">Regular</button>
+        <button class="toggle-btn" onclick="setPricingType('student')">Student / Senior</button>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Class / Social Pass *</label>
+        <select class="form-select" id="classSelect" onchange="onClassChange()">
+          <option value="">— Select class or pass —</option>
+        </select>
+      </div>
+
+      <div id="subtotalBox" style="display:none">
+        <div class="price-box">
+          <div>
+            <div class="price-label">Subtotal</div>
+            <div class="price-value" id="subtotalVal">$0</div>
+          </div>
+          <i class="bi bi-receipt text-secondary fs-2"></i>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Payment -->
+  <div class="card">
+    <div class="card-header-custom"><i class="bi bi-credit-card-fill"></i> Payment</div>
+    <div class="card-body p-3">
+
+      <label class="form-label">Payment Method *</label>
+      <div class="payment-radio-group">
+
+        <label class="payment-radio-label" id="pay-Venmo">
+          <input type="radio" name="paymentMethod" value="Venmo" onchange="onPaymentChange('Venmo')" />
+          <span class="radio-dot"></span>
+          <i class="bi bi-phone-fill"></i> Venmo
+        </label>
+
+        <label class="payment-radio-label" id="pay-Cash">
+          <input type="radio" name="paymentMethod" value="Cash" onchange="onPaymentChange('Cash')" />
+          <span class="radio-dot"></span>
+          <i class="bi bi-cash-stack"></i> Cash
+        </label>
+
+        <label class="payment-radio-label" id="pay-Other">
+          <input type="radio" name="paymentMethod" value="Other" onchange="onPaymentChange('Other')" />
+          <span class="radio-dot"></span>
+          <i class="bi bi-three-dots"></i> Other
+        </label>
+
+        <label class="payment-radio-label" id="pay-Square">
+          <input type="radio" name="paymentMethod" value="Square" onchange="onPaymentChange('Square')" />
+          <span class="radio-dot"></span>
+          <i class="bi bi-square-fill"></i> Square
+        </label>
+
+      </div>
+
+      <!-- Total breakdown — shown after payment method is selected -->
+      <div id="totalBox" style="display:none">
+        <div class="total-breakdown">
+          <div class="breakdown-row">
+            <span class="breakdown-label">Subtotal</span>
+            <span class="breakdown-val" id="breakdownSubtotal">$0.00</span>
+          </div>
+          <div class="breakdown-row" id="feeRow" style="display:none">
+            <span class="breakdown-label">Square processing fee</span>
+            <span class="breakdown-val" id="breakdownFee">$0.00</span>
+          </div>
+          <div class="breakdown-row total-row">
+            <span class="breakdown-label">Total</span>
+            <span class="breakdown-val" id="breakdownTotal">$0.00</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Notes -->
+  <div class="card">
+    <div class="card-header-custom"><i class="bi bi-pencil-fill"></i> Notes</div>
+    <div class="card-body p-3">
+      <label class="form-label">Note <span class="text-muted fw-normal">(leave blank to auto-fill "Checked in")</span></label>
+      <textarea class="form-control" id="noteField" rows="2"
+                placeholder="Optional note…"></textarea>
+    </div>
+  </div>
+
+  <button class="btn-submit" id="submitBtn" onclick="handleSubmit()">
+    <i class="bi bi-send-fill me-2"></i>Submit Check-In
+  </button>
+  <div style="height:24px"></div>
+</div>
+
+<!-- ================================================================ -->
+<!-- VIEW: Monthly Pass Portal                                         -->
+<!-- ================================================================ -->
+<div class="view" id="view-monthly">
+
+  <div class="mb-3">
+    <h6 class="mb-0 fw-bold">Monthly Pass Holders</h6>
+  </div>
+
+  <div id="monthlyList">
+    <div class="empty-state">
+      <div class="spinner-border text-secondary" role="status"></div><br>Loading…
+    </div>
+  </div>
+  <div style="height:24px"></div>
+</div>
+
+<!-- ================================================================ -->
+<!-- VIEW: Attendance Analytics                                        -->
+<!-- ================================================================ -->
+<div class="view" id="view-attendance">
+
+  <!-- Tonight -->
+  <div class="card">
+    <div class="card-header-custom">
+      <i class="bi bi-people-fill"></i>
+      Tonight —&nbsp;<span id="attendanceDateLabel" style="color:var(--brand-gold)">No date selected</span>
+    </div>
+    <div class="card-body p-3">
+      <div id="tonightStats" class="att-loading">
+        <div class="spinner-border spinner-border-sm text-secondary"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- YTD -->
+  <div class="card">
+    <div class="card-header-custom">
+      <i class="bi bi-bar-chart-fill"></i> Year-to-Date Totals
+    </div>
+    <div class="card-body p-3">
+      <div id="ytdStats" class="att-loading">
+        <div class="spinner-border spinner-border-sm text-secondary"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top 10 leaderboards side by side -->
+  <div class="row g-3">
+    <div class="col-12 col-md-6">
+      <div class="card h-100">
+        <div class="card-header-custom">
+          <i class="bi bi-trophy-fill"></i> Top 10 Attendees (YTD)
+        </div>
+        <div class="card-body p-3">
+          <div id="top10List" class="att-loading">
+            <div class="spinner-border spinner-border-sm text-secondary"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6">
+      <div class="card h-100">
+        <div class="card-header-custom" style="background:var(--brand-mid)">
+          <i class="bi bi-music-note-beamed"></i> Top 10 Social Dancers (YTD)
+        </div>
+        <div class="card-body p-3">
+          <div id="top10SocialList" class="att-loading">
+            <div class="spinner-border spinner-border-sm text-secondary"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:24px"></div>
+</div>
+
+<!-- ================================================================ -->
+<!-- Modal: Date Picker (auto-opens on load until a date is chosen)   -->
+<!-- ================================================================ -->
+<div class="modal fade" id="datePickerModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0" style="border-radius:14px;overflow:hidden">
+      <div class="modal-header" style="background:var(--brand-dark);color:#fff;border:none">
+        <h5 class="modal-title fw-bold"><i class="bi bi-calendar-week me-2"></i>Select Operating Date</h5>
+      </div>
+      <div class="modal-body p-4">
+        <p class="text-muted small mb-3">Choose the class date before checking in students.</p>
+        <div id="datePickerModalList" class="d-flex flex-column gap-2">
+          <div class="text-center text-muted py-3"><div class="spinner-border spinner-border-sm"></div> Loading dates…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================ -->
+<!-- Bootstrap JS                                                      -->
+<!-- ================================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// ================================================================
+// App State
+// ================================================================
+const state = {
+  selectedDate:  null,
+  activeView:    'checkin',   // tracks current view for smart back-navigation
+  pricingType:   'regular',  // 'regular' | 'student'
+  selectedClass:   null,
+  selectedPayment: null,
+  config: { pricing: {}, paymentMethods: [] },
+  monthlyPasses: [],
+  acDebounce: null,
+};
+
+// ================================================================
+// Init
+// ================================================================
+window.addEventListener('DOMContentLoaded', () => {
+  state.datePickerModal = new bootstrap.Modal(document.getElementById('datePickerModal'));
+  state.datePickerModal.show();
+
+  // Upgrade the logo to a base64 version served by Apps Script (avoids any
+  // cross-origin issues in the deployed web app). The img tag already has a
+  // direct Drive URL as its src so the logo shows immediately in all cases.
+  if (typeof google !== 'undefined' && google.script) {
+    google.script.run
+      .withSuccessHandler(src => {
+        if (src) document.getElementById('awaLogo').src = src;
+      })
+      .getLogoBase64();
+  }
+
+  if (typeof google !== 'undefined' && google.script) {
+    google.script.run
+      .withSuccessHandler(cfg => {
+        state.config = cfg;
+        buildClassDropdown();
+      })
+      .withFailureHandler(err => toast('Error loading config: ' + err.message, 'error'))
+      .getConfig();
+  }
+
+  loadDateTabs();
+});
+
+// ================================================================
+// View routing
+// ================================================================
+function showView(view) {
+  state.activeView = view;
+  ['checkin', 'date', 'monthly', 'attendance'].forEach(v => {
+    document.getElementById('view-' + v).classList.toggle('active', v === view);
+  });
+  // Highlight the matching side-nav item
+  document.querySelectorAll('.sidenav-item[data-view]').forEach(el => {
+    el.classList.toggle('active', el.dataset.view === view);
+  });
+  if (view === 'monthly')    loadMonthlyPasses();
+  if (view === 'attendance') loadAttendance();
+  closeNav();
+}
+
+// ================================================================
+// Date selection
+// ================================================================
+function loadDateTabs() {
+  google.script.run
+    .withSuccessHandler(renderDateList)
+    .withFailureHandler(err => {
+      document.getElementById('dateList').innerHTML =
+        '<div class="alert alert-danger">Could not load dates: ' + err.message + '</div>';
+    })
+    .getDateTabs();
+}
+
+function renderDateList(tabs) {
+  const html = !tabs || tabs.length === 0
+    ? '<div class="empty-state"><i class="bi bi-calendar-x"></i>No date tabs found in the spreadsheet.</div>'
+    : tabs.map(tab => `
+        <div class="date-option ${state.selectedDate === tab ? 'selected' : ''}"
+             onclick="selectDate('${tab}')">
+          <span><i class="bi bi-calendar-check me-2 text-danger"></i>${tab}</span>
+          <i class="bi bi-chevron-right text-muted"></i>
+        </div>`).join('');
+
+  document.getElementById('dateList').innerHTML = html;
+  document.getElementById('datePickerModalList').innerHTML = html;
+}
+
+function selectDate(tab) {
+  state.selectedDate = tab;
+
+  // Update badge
+  document.getElementById('dateBadgeText').textContent = tab;
+  document.getElementById('dateBadge').classList.remove('not-set');
+
+  // Re-render list to show selected state in both the view and the modal
+  document.querySelectorAll('.date-option').forEach(el => {
+    el.classList.toggle('selected', el.querySelector('span').textContent.trim().includes(tab));
+  });
+
+  // Hide warning on check-in view
+  document.getElementById('noDatWarning').style.display = 'none';
+
+  // Close modal then return to whichever view was active before the date change
+  // (so an admin on the Attendance page stays there after picking a new date)
+  if (state.datePickerModal) state.datePickerModal.hide();
+  toast('Date set to ' + tab, 'success');
+  const returnView = ['attendance', 'monthly'].includes(state.activeView)
+    ? state.activeView : 'checkin';
+  setTimeout(() => showView(returnView), 400);
+}
+
+// ================================================================
+// Check-In form
+// ================================================================
+function setPricingType(type) {
+  state.pricingType = type;
+  state.selectedClass = null;
+  document.getElementById('classSelect').value = '';
+  document.getElementById('subtotalBox').style.display = 'none';
+  document.getElementById('totalBox').style.display = 'none';
+  updateSubmitState();
+
+  document.querySelectorAll('#pricingToggle .toggle-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', (i === 0 && type === 'regular') || (i === 1 && type === 'student'));
+  });
+
+  buildClassDropdown();
+}
+
+function buildClassDropdown() {
+  const pricing   = state.config.pricing || {};
+  const isStudent = state.pricingType === 'student';
+  const sel       = document.getElementById('classSelect');
+  sel.innerHTML   = '<option value="">— Select class or pass —</option>';
+
+  // Sort: drop-ins (non-monthly) first, monthly passes at the bottom
+  const entries = Object.entries(pricing)
+    .filter(([, info]) => info.isStudentSenior === isStudent)
+    .sort((a, b) => {
+      const aM = a[1].isMonthly ? 1 : 0;
+      const bM = b[1].isMonthly ? 1 : 0;
+      if (aM !== bM) return aM - bM;
+      return a[0].localeCompare(b[0]);
+    });
+
+  entries.forEach(([label, info]) => {
+    const opt = document.createElement('option');
+    opt.value = label;
+    opt.textContent = label + '  ($' + info.price + ')';
+    sel.appendChild(opt);
+  });
+}
+
+function onClassChange() {
+  const val = document.getElementById('classSelect').value;
+  state.selectedClass = val || null;
+
+  if (val && state.config.pricing[val]) {
+    const price = state.config.pricing[val].price;
+    document.getElementById('subtotalVal').textContent = '$' + price;
+    document.getElementById('subtotalBox').style.display = 'block';
+    // Update total if payment already selected
+    if (state.selectedPayment) updateTotal();
+  } else {
+    document.getElementById('subtotalBox').style.display = 'none';
+    document.getElementById('totalBox').style.display = 'none';
+  }
+
+  updateSubmitState();
+}
+
+// Handles radio button payment selection
+function onPaymentChange(method) {
+  state.selectedPayment = method;
+  ['Venmo','Cash','Other','Square'].forEach(m => {
+    document.getElementById('pay-' + m).classList.toggle('selected', m === method);
+  });
+  updateTotal();
+  updateSubmitState();
+}
+
+// Calculates and displays the total breakdown.
+// Square: total = subtotal + (subtotal * 0.026) + 0.11  (processing fee passed to student)
+// All others: total = subtotal, no fee
+function updateTotal() {
+  if (!state.selectedClass || !state.selectedPayment) return;
+
+  const subtotal = (state.config.pricing[state.selectedClass] || {}).price || 0;
+  const isSquare = state.selectedPayment === 'Square';
+  const fee      = isSquare ? (subtotal * 0.026) + 0.11 : 0;
+  const total    = subtotal + fee;
+
+  document.getElementById('breakdownSubtotal').textContent = fmt(subtotal);
+  document.getElementById('breakdownTotal').textContent    = fmt(total);
+
+  const feeRow = document.getElementById('feeRow');
+  if (isSquare) {
+    document.getElementById('breakdownFee').textContent = '+' + fmt(fee);
+    feeRow.style.display = 'flex';
+  } else {
+    feeRow.style.display = 'none';
+  }
+
+  document.getElementById('totalBox').style.display = 'block';
+}
+
+function fmt(n) {
+  return '$' + n.toFixed(2);
+}
+
+function updateSubmitState() {
+  const hasDate    = !!state.selectedDate;
+  const hasFirst   = document.getElementById('firstName').value.trim().length > 0;
+  const hasLast    = document.getElementById('lastName').value.trim().length > 0;
+  const hasClass   = !!state.selectedClass;
+  const hasPayment = !!state.selectedPayment;
+  const ready      = hasDate && hasFirst && hasLast && hasClass && hasPayment;
+
+  const btn = document.getElementById('submitBtn');
+  btn.style.opacity = ready ? '1' : '0.45';
+  btn.style.cursor  = ready ? 'pointer' : 'not-allowed';
+  btn.dataset.ready = ready ? '1' : '';
+
+  document.getElementById('noDatWarning').style.display = !hasDate ? 'block' : 'none';
+}
+
+function handleSubmit() {
+  const btn = document.getElementById('submitBtn');
+  if (!btn.dataset.ready) {
+    // Guide admin to what's still missing
+    if (!state.selectedDate)    { toast('Select a class date first.', 'info'); openDatePicker(); return; }
+    if (!document.getElementById('firstName').value.trim()) { toast('Enter the student\'s first name.', 'error'); return; }
+    if (!document.getElementById('lastName').value.trim())  { toast('Enter the student\'s last name.', 'error'); return; }
+    if (!state.selectedClass)   { toast('Select a class or pass.', 'error'); return; }
+    if (!state.selectedPayment) { toast('Select a payment method.', 'error'); return; }
+    return;
+  }
+
+  const firstName = document.getElementById('firstName').value.trim();
+  const lastName  = document.getElementById('lastName').value.trim();
+  const email     = document.getElementById('studentEmail').value.trim();
+  const notes     = document.getElementById('noteField').value.trim();
+  const fullName  = firstName + ' ' + lastName;
+
+  showSpinner('Checking in ' + firstName + '…');
+
+  google.script.run
+    .withSuccessHandler(result => {
+      hideSpinner();
+      if (result.success) {
+        showSuccessPopup(fullName);
+      } else {
+        toast('Sheet error: ' + result.error, 'error');
+      }
+    })
+    .withFailureHandler(err => {
+      hideSpinner();
+      toast('Connection error: ' + err.message, 'error');
+    })
+    .submitCheckIn({
+      tabName:       state.selectedDate,
+      firstName,
+      lastName,
+      email,
+      classOption:   state.selectedClass,
+      paymentMethod: matchPaymentToSheet(state.selectedPayment),
+      notes
+    });
+}
+
+// Shows the 3-second success popup then clears the form
+function showSuccessPopup(name) {
+  const overlay = document.getElementById('successOverlay');
+  document.getElementById('successName').textContent = name;
+  overlay.style.display = 'flex';
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    resetCheckInForm();
+  }, 3000);
+}
+
+function resetCheckInForm() {
+  document.getElementById('firstName').value    = '';
+  document.getElementById('lastName').value     = '';
+  document.getElementById('studentEmail').value = '';
+  document.getElementById('noteField').value    = '';
+  document.getElementById('classSelect').value  = '';
+  state.selectedClass   = null;
+  state.selectedPayment = null;
+  ['Venmo','Cash','Other','Square'].forEach(m => {
+    const el = document.getElementById('pay-' + m);
+    if (el) el.classList.remove('selected');
+  });
+  document.querySelectorAll('input[name="paymentMethod"]').forEach(r => r.checked = false);
+  document.getElementById('subtotalBox').style.display = 'none';
+  document.getElementById('totalBox').style.display    = 'none';
+  updateSubmitState();
+}
+
+// ================================================================
+// Autocomplete — searches as admin types first or last name
+// ================================================================
+function onNameInput() {
+  clearTimeout(state.acDebounce);
+  updateSubmitState();
+  const first = document.getElementById('firstName').value.trim();
+  const last  = document.getElementById('lastName').value.trim();
+  const query = (first + ' ' + last).trim();
+  if (query.length < 2) { closeAcList(); return; }
+  state.acDebounce = setTimeout(() => {
+    if (typeof google !== 'undefined' && google.script) {
+      google.script.run
+        .withSuccessHandler(renderAcList)
+        .withFailureHandler(() => closeAcList())
+        .getStudentSuggestions(query);
+    }
+  }, 280);
+}
+
+function renderAcList(items) {
+  const list = document.getElementById('nameAcList');
+  if (!items || items.length === 0) { closeAcList(); return; }
+  list.innerHTML = items.map(item => `
+    <div class="autocomplete-item" onclick="selectStudent('${esc(item.name)}','${esc(item.email)}')">
+      <div class="ac-name">${item.name}</div>
+      <div class="ac-email">${item.email || ''}</div>
+    </div>
+  `).join('');
+  list.classList.add('open');
+}
+
+function selectStudent(fullName, email) {
+  // Split "First Last" back into separate fields
+  const parts = fullName.trim().split(/\s+/);
+  document.getElementById('firstName').value    = parts[0] || '';
+  document.getElementById('lastName').value     = parts.slice(1).join(' ') || '';
+  document.getElementById('studentEmail').value = email || '';
+  closeAcList();
+  updateSubmitState();
+}
+
+function closeAcList() {
+  document.getElementById('nameAcList').classList.remove('open');
+  document.getElementById('nameAcList').innerHTML = '';
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.autocomplete-wrap')) closeAcList();
+});
+
+// ================================================================
+// Monthly Pass Portal
+// ================================================================
+function loadMonthlyPasses() {
+  document.getElementById('monthlyList').innerHTML =
+    '<div class="empty-state"><div class="spinner-border text-secondary" role="status"></div></div>';
+  google.script.run
+    .withSuccessHandler(renderMonthlyList)
+    .withFailureHandler(err => {
+      document.getElementById('monthlyList').innerHTML =
+        '<div class="alert alert-danger">Could not load passes: ' + err.message + '</div>';
+    })
+    .getMonthlyPasses();
+}
+
+function renderMonthlyList(passes) {
+  state.monthlyPasses = passes;
+  const el = document.getElementById('monthlyList');
+  if (!passes || passes.length === 0) {
+    el.innerHTML = '<div class="empty-state"><i class="bi bi-card-list"></i>No active monthly passes found.</div>';
+    return;
+  }
+
+  el.innerHTML = passes.map(p => {
+    const initials = p.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    const cls = p.classesLeft >= 3 ? '4' : p.classesLeft === 2 ? '2' : p.classesLeft === 1 ? '1' : '0';
+    const checkinDates = p.checkins.join(', ') || 'None yet';
+    return `
+      <div class="pass-card">
+        <div class="pass-avatar">${initials}</div>
+        <div class="pass-info">
+          <div class="pass-name">${p.name}</div>
+          <div class="pass-meta">
+            Purchased: ${formatDate(p.purchaseDate)} &nbsp;·&nbsp; Classes used: ${p.checkins.length}<br>
+            <span title="Check-in dates: ${checkinDates}">Dates: ${checkinDates}</span>
+          </div>
+        </div>
+        <div class="text-center me-1">
+          <span class="classes-pill classes-${cls}">${p.classesLeft} left</span>
+        </div>
+        <button class="btn-checkin" ${p.classesLeft <= 0 ? 'disabled' : ''}
+                onclick="doMonthlyCheckIn(${p.rowIndex}, '${esc(p.name)}')">
+          Check In
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
+function doMonthlyCheckIn(rowIndex, name) {
+  if (!state.selectedDate) {
+    toast('Select a date before checking in.', 'info');
+    openDatePicker();
+    return;
+  }
+  if (!confirm('Check in ' + name + ' for today?')) return;
+
+  showSpinner('Checking in ' + name + '…');
+  google.script.run
+    .withSuccessHandler(result => {
+      hideSpinner();
+      if (result.success) {
+        toast('✓ ' + result.name + ' checked in — ' + result.classesLeft + ' class' +
+              (result.classesLeft === 1 ? '' : 'es') + ' remaining', 'success');
+        loadMonthlyPasses();
+      } else {
+        toast(result.error || 'Check-in failed', 'error');
+      }
+    })
+    .withFailureHandler(err => { hideSpinner(); toast('Error: ' + err.message, 'error'); })
+    .checkInMonthlyStudent(rowIndex, state.selectedDate);
+}
+
+
+// ================================================================
+// Utilities
+// ================================================================
+function toast(msg, type = 'info') {
+  const el = document.createElement('div');
+  el.className = 'toast-msg ' + type;
+  el.textContent = msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 3800);
+}
+
+function showSpinner(msg = 'Saving…') {
+  document.getElementById('spinnerMsg').textContent = msg;
+  document.getElementById('spinner').style.display = 'flex';
+}
+
+function hideSpinner() {
+  document.getElementById('spinner').style.display = 'none';
+}
+
+function formatDate(val) {
+  if (!val) return '—';
+  if (val instanceof Date) return (val.getMonth()+1) + '/' + val.getDate() + '/' + String(val.getFullYear()).slice(-2);
+  return String(val);
+}
+
+function esc(s) {
+  return String(s || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+// Maps the UI payment label (Venmo, Cash, Other, Square) to the exact value
+// stored in the sheet's Q40:Q44 column so the dropdown validation always matches.
+function matchPaymentToSheet(label) {
+  const methods = (state.config.paymentMethods || []);
+  if (!label) return '';
+  const lower = label.toLowerCase();
+  return methods.find(m => m.toLowerCase().includes(lower)) || label;
+}
+
+// Re-evaluate submit state whenever either name field changes
+document.getElementById('firstName').addEventListener('input', updateSubmitState);
+document.getElementById('lastName').addEventListener('input', updateSubmitState);
+
+// ================================================================
+// Side-nav
+// ================================================================
+function openNav() {
+  document.getElementById('sidenavDrawer').classList.add('open');
+  document.getElementById('sidenavOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeNav() {
+  document.getElementById('sidenavDrawer').classList.remove('open');
+  document.getElementById('sidenavOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ================================================================
+// Date picker helper
+// ================================================================
+function openDatePicker() {
+  if (state.datePickerModal) state.datePickerModal.show();
+}
+
+// ================================================================
+// Attendance Analytics
+// ================================================================
+function loadAttendance() {
+  const label = state.selectedDate || 'No date selected';
+  document.getElementById('attendanceDateLabel').textContent = label;
+
+  const spin = '<div class="att-loading"><div class="spinner-border spinner-border-sm text-secondary"></div></div>';
+  document.getElementById('tonightStats').innerHTML    = spin;
+  document.getElementById('ytdStats').innerHTML        = spin;
+  document.getElementById('top10List').innerHTML       = spin;
+  document.getElementById('top10SocialList').innerHTML = spin;
+
+  if (typeof google === 'undefined' || !google.script) return;
+
+  google.script.run
+    .withSuccessHandler(renderAttendance)
+    .withFailureHandler(err => {
+      document.getElementById('tonightStats').innerHTML =
+        '<div class="alert alert-danger mt-1">Error: ' + err.message + '</div>';
+      document.getElementById('ytdStats').innerHTML    = '';
+      document.getElementById('top10List').innerHTML   = '';
+    })
+    .getAttendanceData(state.selectedDate || '');
+}
+
+function renderAttendance(data) {
+  if (!data) return;
+
+  document.getElementById('tonightStats').innerHTML = buildStatGrid(data.tonight);
+  document.getElementById('ytdStats').innerHTML     = buildStatGrid(data.ytd);
+
+  renderTop10('top10List',       data.top10);
+  renderTop10('top10SocialList', data.top10Social);
+}
+
+function renderTop10(elId, list) {
+  const el = document.getElementById(elId);
+  if (!list || list.length === 0) {
+    el.innerHTML = '<p class="text-center text-muted py-2 mb-0">No data recorded yet.</p>';
+    return;
+  }
+  el.innerHTML = list.map((p, i) => {
+    const rc = i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : '';
+    return `<div class="top10-row">
+      <div class="top10-rank ${rc}">${i + 1}</div>
+      <div class="top10-name">${p.name}</div>
+      <div class="top10-count">${p.count} class${p.count === 1 ? '' : 'es'}</div>
+    </div>`;
+  }).join('');
+}
+
+function buildStatGrid(c) {
+  if (!c) return '';
+  return `<div class="stat-grid">
+    <div class="stat-card span-2 hi">
+      <div class="stat-label">Total Attendees</div>
+      <div class="stat-value">${c.total}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Level 0</div>
+      <div class="stat-value">${c.level0}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Level 1</div>
+      <div class="stat-value">${c.level1}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Level 2</div>
+      <div class="stat-value">${c.level2}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Social</div>
+      <div class="stat-value">${c.social}</div>
+    </div>
+  </div>`;
+}
+</script>
+</body>
+</html>

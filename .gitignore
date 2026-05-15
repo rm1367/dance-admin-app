@@ -1,0 +1,14 @@
+# Local configuration — copy Config.gs.example → Config.gs and fill in your values.
+# Config.gs is never committed; it holds your real Spreadsheet ID and Drive file ID.
+Config.gs
+
+# macOS
+.DS_Store
+
+# Editor / IDE
+.vscode/
+.idea/
+
+# clasp (Apps Script CLI) — contains project ID and deployment info
+.clasp.json
+.claspignore

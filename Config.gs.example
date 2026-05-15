@@ -1,0 +1,20 @@
+// ===================================================================
+// AWA Admin Portal — Configuration Template
+// File: Config.gs.example
+//
+// SETUP INSTRUCTIONS:
+//   1. Copy this file and rename it to Config.gs
+//   2. Fill in your real values below
+//   3. Config.gs is listed in .gitignore and will never be committed
+//
+// GAS compiles all .gs files together, so constants defined here are
+// available in Code.gs, Attendance.gs, and any other .gs file.
+// ===================================================================
+
+// Your Google Spreadsheet ID.
+// Found in the sheet URL: docs.google.com/spreadsheets/d/YOUR_ID/edit
+const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID_HERE';
+
+// Google Drive file ID for your business logo image.
+// Found in the Drive share URL: drive.google.com/file/d/YOUR_ID/view
+const LOGO_FILE_ID = 'YOUR_LOGO_DRIVE_FILE_ID_HERE';
