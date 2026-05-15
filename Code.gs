@@ -85,31 +85,6 @@ const MONTHLIES_HEADERS = [
 // ---- END CONFIGURATION -----------------------------------------------
 
 
-// ── Custom spreadsheet menu ────────────────────────────────────────────────────
-// Adds an "AWA Admin" menu to the Google Sheet toolbar automatically when the
-// sheet is opened. Click "Open Check-In Portal" to launch the web app.
-function onOpen() {
-  SpreadsheetApp.getUi()
-    .createMenu('AWA Admin')
-    .addItem('Open Check-In Portal', 'openAdminPortal')
-    .addToUi();
-}
-
-// Opens the deployed web app in a new browser tab.
-// Update PORTAL_URL to your current deployment URL.
-const PORTAL_URL = 'YOUR_DEPLOYMENT_URL_HERE';
-
-function openAdminPortal() {
-  const html = HtmlService
-    .createHtmlOutput(
-      '<script>window.open("' + PORTAL_URL + '"); google.script.host.close();</script>'
-    )
-    .setWidth(10).setHeight(10);
-  SpreadsheetApp.getUi().showModalDialog(html, 'Opening Admin Portal…');
-}
-// ── End custom menu ────────────────────────────────────────────────────────────
-
-
 // Serves the web app
 function doGet() {
   return HtmlService.createHtmlOutputFromFile('Index')
